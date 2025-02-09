@@ -45,7 +45,7 @@ public class ProductController {
         return productRepository.save(existingProduct);
     }
 
-    @GetMapping("/inPriceRange")
+    @GetMapping("/in-price-range")
     public List<Product> findAllInPriceRange(@RequestParam double from, @RequestParam double to) {
         return productRepository.findALlByPriceBetween(from, to);
     }
@@ -57,9 +57,6 @@ public class ProductController {
 
     @GetMapping("/top-price")
     public Product findMostExpensiveProduct() {
-        return productRepository.findAll()
-                .stream()
-                .max((pr1, pr2) -> Double.compare(pr1.getPrice(), pr2.getPrice()))
-                .orElseThrow();
+        return productRepository.findTopByOrderByPriceDesc().orElseThrow();
     }
 }
