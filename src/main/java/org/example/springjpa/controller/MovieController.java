@@ -65,21 +65,21 @@ public class MovieController {
             @RequestParam String sortBy, @RequestParam String sortOrder,
             @RequestParam int page, @RequestParam int size
     ) {
-        if (page < 1 || size < 1 || size > 50) {
-            throw new IndexOutOfBoundsException();
-        }
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-
         Sort.Direction dir = Sort.Direction.ASC;
         if (sortOrder.equals("desc")) {
             dir = Sort.Direction.DESC;
         }
 
+        if (page < 1 || size < 1 || size > 50) {
+            throw new IndexOutOfBoundsException();
+        }
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(dir, sortBy));
+
+
         return movieRepository.findAllByRatingBetweenAndReleaseYearBetween(
                 minRating, maxRating,
                 startYear, endYear,
-                Sort.by(dir, sortBy), pageable);
+                pageable);
     }
 
     @GetMapping("/search")
@@ -90,19 +90,17 @@ public class MovieController {
             @RequestParam String sortBy, @RequestParam String sortOrder,
             @RequestParam int page, @RequestParam int size
     ) {
-        if (page < 1 || size < 1 || size > 50) {
-            throw new IndexOutOfBoundsException();
-        }
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-
         Sort.Direction dir = Sort.Direction.ASC;
         if (sortOrder.equals("desc")) {
             dir = Sort.Direction.DESC;
         }
 
+        if (page < 1 || size < 1 || size > 50) {
+            throw new IndexOutOfBoundsException();
+        }
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(dir, sortBy));
+
         return movieRepository.findAllByTitleContainingIgnoreCaseAndRatingGreaterThanAndReleaseYearAfter(
-                query, minRating, startYear,
-                Sort.by(dir, sortBy), pageable);
+                query, minRating, startYear, pageable);
     }
 }

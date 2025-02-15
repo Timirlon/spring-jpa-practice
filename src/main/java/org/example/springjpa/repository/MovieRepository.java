@@ -21,12 +21,11 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     List<Movie> findAllByRatingBetweenAndReleaseYearBetween(
             double minRating, double maxRating,
             int startYear, int endYear,
-            Sort sort, Pageable pageable);
+            Pageable pageable);
 
     List<Movie> findAllByTitleContainingIgnoreCaseAndRatingGreaterThanAndReleaseYearAfter(
             String subStr,
             double minRating,
             int startYear,
-            Sort sort,
             Pageable pageable);
 }
