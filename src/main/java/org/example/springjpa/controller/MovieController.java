@@ -1,6 +1,7 @@
 package org.example.springjpa.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.springjpa.exceptions.IncorrectParamException;
 import org.example.springjpa.model.Movie;
 import org.example.springjpa.repository.MovieRepository;
 import org.springframework.data.domain.Page;
@@ -40,7 +41,7 @@ public class MovieController {
             @RequestParam int size) {
 
         if (page < 1 || size < 1 || size > 50) {
-            throw new IndexOutOfBoundsException();
+            throw new IncorrectParamException();
         }
 
         Pageable pageable = PageRequest.of(page - 1, size);
@@ -71,7 +72,7 @@ public class MovieController {
         }
 
         if (page < 1 || size < 1 || size > 50) {
-            throw new IndexOutOfBoundsException();
+            throw new IncorrectParamException();
         }
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(dir, sortBy));
 
@@ -79,7 +80,8 @@ public class MovieController {
         return movieRepository.findAllByRatingBetweenAndReleaseYearBetween(
                 minRating, maxRating,
                 startYear, endYear,
-                pageable);
+                pageable
+        );
     }
 
     @GetMapping("/search")
@@ -96,11 +98,12 @@ public class MovieController {
         }
 
         if (page < 1 || size < 1 || size > 50) {
-            throw new IndexOutOfBoundsException();
+            throw new IncorrectParamException();
         }
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(dir, sortBy));
 
         return movieRepository.findAllByTitleContainingIgnoreCaseAndRatingGreaterThanAndReleaseYearAfter(
-                query, minRating, startYear, pageable);
+                query, minRating, startYear, pageable
+        );
     }
 }
