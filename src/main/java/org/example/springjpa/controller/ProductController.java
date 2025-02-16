@@ -1,30 +1,47 @@
 package org.example.springjpa.controller;
 
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.example.springjpa.dto.ProductDto;
+import org.example.springjpa.dto.ProductFullDto;
+import org.example.springjpa.mapper.Mapper;
+import org.example.springjpa.mapper.impl.ProductMapper;
 import org.example.springjpa.model.Category;
 import org.example.springjpa.model.Product;
 import org.example.springjpa.repository.CategoryRepository;
 import org.example.springjpa.repository.ProductRepository;
+import org.example.springjpa.repository.ValueRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
 public class ProductController {
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    ProductRepository productRepository;
+    CategoryRepository categoryRepository;
+    ValueRepository valueRepository;
+
+    ProductMapper productMapper;
+
 
     @GetMapping
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<ProductDto> findAll() {
+        List<Product> prodList = productRepository.findAll();
+        return productMapper.toDto(prodList);
     }
 
     @GetMapping("/{id}")
-    public Product findById(@PathVariable int id) {
-        return productRepository.findById(id).orElseThrow();
+    public ProductFullDto findById(@PathVariable int id) {
+        Product prod = productRepository.findById(id).orElseThrow();
+        prod.setValues(valueRepository.findByProductId(id));
+
+        return productMapper.toFullDto(prod);
     }
 
     @PostMapping
@@ -35,7 +52,7 @@ public class ProductController {
         return productRepository.save(product);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public Product update(@PathVariable int id, @RequestBody Product product) {
         Product existingProduct = productRepository.findById(id).orElseThrow();
         existingProduct.setName(product.getName());
