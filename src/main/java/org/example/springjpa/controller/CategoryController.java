@@ -1,17 +1,26 @@
 package org.example.springjpa.controller;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.example.springjpa.dto.CategoryCreateDto;
+import org.example.springjpa.mapper.impl.CategoryMapper;
 import org.example.springjpa.model.Category;
 import org.example.springjpa.repository.CategoryRepository;
+import org.example.springjpa.repository.OptionRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/categories")
 public class CategoryController {
-    private final CategoryRepository categoryRepository;
+    CategoryRepository categoryRepository;
+    OptionRepository optionRepository;
+    CategoryMapper categoryMapper;
 
     @GetMapping
     public List<Category> findAll() {
@@ -24,7 +33,9 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Category create(@RequestBody Category category) {
+    public Category create(@RequestBody CategoryCreateDto categoryCreateDto) {
+        Category category = categoryMapper.fromDto(categoryCreateDto);
+
         return categoryRepository.save(category);
     }
 

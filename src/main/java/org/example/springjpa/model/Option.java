@@ -1,5 +1,6 @@
 package org.example.springjpa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +20,11 @@ public class Option {
     String name;
 
     @ManyToOne
+    @JoinColumn(name = "category_id")
+    @JsonIgnore
     Category category;
 
     @OneToMany
+    @JsonIgnore
     List<Value> values;
 }

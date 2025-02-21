@@ -40,7 +40,7 @@ public class ProductMapper implements Mapper<Product, ProductDto> {
             String key = value.getOption().getName();
             String val = value.getName();
 
-            fullDto.addOption(val, key);
+            fullDto.addOption(key, val);
         });
 
         return fullDto;

@@ -17,8 +17,10 @@ public class Value {
     String name;
 
     @ManyToOne
+    @JoinColumn(name = "product_id")
     Product product;
 
     @ManyToOne
+    @JoinColumn(name = "option_id")
     Option option;
 }

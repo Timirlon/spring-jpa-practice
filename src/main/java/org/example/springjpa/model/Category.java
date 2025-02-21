@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -18,4 +20,7 @@ public class Category {
     int id;
 
     String name;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    List<Option> options;
 }
