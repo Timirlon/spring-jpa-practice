@@ -22,7 +22,7 @@ public class Product {
 
     String name;
 
-    double price;
+    Double price;
 
     @ManyToOne
     Category category;
