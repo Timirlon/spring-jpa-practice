@@ -15,9 +15,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Optional<Product> findTopByOrderByPriceDesc();
 
     @Query("""
-    SELECT p, v FROM Product p
+    SELECT p FROM Product p
         JOIN p.values v
-            WHERE v.name = :#{$name}
+            WHERE v.name = :name
     """)
     List<Product> findAllByValuesHavingName(String name);
 

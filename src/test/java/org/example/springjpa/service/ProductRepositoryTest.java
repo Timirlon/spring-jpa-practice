@@ -1,5 +1,6 @@
 package org.example.springjpa.service;
 
+import jakarta.persistence.EntityManager;
 import org.example.springjpa.model.Category;
 import org.example.springjpa.model.Option;
 import org.example.springjpa.model.Product;
@@ -9,6 +10,7 @@ import org.example.springjpa.repository.OptionRepository;
 import org.example.springjpa.repository.ProductRepository;
 import org.example.springjpa.repository.ValueRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -17,6 +19,9 @@ import java.util.List;
 
 @DataJpaTest
 public class ProductRepositoryTest {
+    @Autowired
+    EntityManager entityManager;
+
     @Autowired
     ProductRepository productRepository;
 
@@ -75,8 +80,16 @@ public class ProductRepositoryTest {
         valueRepository.save(storageValue);
 
 
+        entityManager.clear();
+        Product found = productRepository.findById(iPhoneProduct.getId()).orElseThrow();
 
-        assertEquals(expectedNumberOfValues, iPhoneProduct.getValues().size());
+
+        assertEquals(expectedNumberOfValues, found.getValues().size());
+        assertEquals(blackColorValue.getId(), found.getValues().get(0).getId());
+        assertEquals(storageValue.getId(), found.getValues().get(1).getId());
+
+        assertEquals(smartphoneCategory.getId(), colorOption.getCategory().getId());
+        assertEquals(smartphoneCategory.getId(), storageOption.getCategory().getId());
     }
 
     @Test
@@ -87,7 +100,7 @@ public class ProductRepositoryTest {
 
         Category laptopCategory = new Category();
         smartphoneCategory.setName("Laptops");
-        categoryRepository.save(smartphoneCategory);
+        categoryRepository.save(laptopCategory);
 
 
         Option smartphoneManufacturerOption = new Option();
@@ -121,6 +134,7 @@ public class ProductRepositoryTest {
         macBook.setName("MacBook Pro 14");
         macBook.setPrice(2440.0);
         macBook.setCategory(laptopCategory);
+        productRepository.save(macBook);
 
 
         Value iPhoneManufacturer = new Value();
@@ -148,10 +162,18 @@ public class ProductRepositoryTest {
         valueRepository.save(macBookStorage);
 
 
+        entityManager.clear();
         List<Product> productsWithAppleValue = productRepository.findAllByValuesHavingName("Apple");
 
-        final int expectedSize = 2;
-        assertEquals(expectedSize, productsWithAppleValue.size());
+        final int expectedSizeOfApple = 2;
+        assertEquals(expectedSizeOfApple, productsWithAppleValue.size());
+        assertEquals(iPhone.getId(), productsWithAppleValue.get(0).getId());
+        assertEquals(macBook.getId(), productsWithAppleValue.get(1).getId());
 
+
+        List<Product> productsWith512gbStorage = productRepository.findAllByValuesHavingName("512 GB");
+        final int expectedSizeOf512gb = 1;
+        assertEquals(expectedSizeOf512gb, productsWith512gbStorage.size());
+        assertEquals(macBook.getId(), productsWith512gbStorage.get(0).getId());
     }
 }
