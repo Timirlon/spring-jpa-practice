@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 
@@ -38,11 +39,11 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ProductFullDto findById(@PathVariable int id) {
+    public Optional<ProductFullDto> findById(@PathVariable int id) {
         Product prod = productRepository.findById(id).orElseThrow();
         prod.setValues(valueRepository.findByProductId(id));
 
-        return productMapper.toFullDto(prod);
+        return Optional.of(productMapper.toFullDto(prod));
     }
 
     @PostMapping
