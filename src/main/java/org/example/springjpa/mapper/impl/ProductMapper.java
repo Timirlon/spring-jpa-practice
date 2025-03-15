@@ -45,4 +45,15 @@ public class ProductMapper implements Mapper<Product, ProductDto> {
 
         return fullDto;
     }
+
+    public Product fromDto(ProductDto dto) {
+        Product product = new Product();
+
+
+        product.setName(dto.getName());
+        product.setPrice(dto.getPrice());
+
+
+        return product;
+    }
 }

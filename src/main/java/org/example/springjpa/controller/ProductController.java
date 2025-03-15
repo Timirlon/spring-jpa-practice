@@ -6,14 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.springjpa.dto.ProductDto;
 import org.example.springjpa.dto.ProductFullDto;
-import org.example.springjpa.mapper.Mapper;
 import org.example.springjpa.mapper.impl.ProductMapper;
 import org.example.springjpa.model.Category;
 import org.example.springjpa.model.Product;
 import org.example.springjpa.repository.CategoryRepository;
 import org.example.springjpa.repository.ProductRepository;
 import org.example.springjpa.repository.ValueRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -45,35 +46,38 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product create(@RequestParam int categoryId, @RequestBody Product product) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow();
-
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProductDto create(@RequestParam int categoryId, @RequestBody ProductDto productDto) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Product product = productMapper.fromDto(productDto);
         product.setCategory(category);
-        return productRepository.save(product);
+
+        return productMapper.toDto(productRepository.save(product));
     }
 
     @PutMapping("/{id}")
-    public Product update(@PathVariable int id, @RequestBody Product product) {
+    public ProductDto update(@PathVariable int id, @RequestBody Product product) {
         Product existingProduct = productRepository.findById(id).orElseThrow();
         existingProduct.setName(product.getName());
         existingProduct.setPrice(product.getPrice());
         existingProduct.setCategory(product.getCategory());
 
-        return productRepository.save(existingProduct);
+        return productMapper.toDto(productRepository.save(existingProduct));
     }
 
     @GetMapping("/in-price-range")
-    public List<Product> findAllInPriceRange(@RequestParam double from, @RequestParam double to) {
-        return productRepository.findALlByPriceBetween(from, to);
+    public List<ProductDto> findAllInPriceRange(@RequestParam double from, @RequestParam double to) {
+        return productMapper.toDto(productRepository.findALlByPriceBetween(from, to));
     }
 
     @GetMapping("/containing")
-    public List<Product> findAllByNameContaining(@RequestParam String subStr) {
-        return productRepository.findAllByNameContainingIgnoreCase(subStr);
+    public List<ProductDto> findAllByNameContaining(@RequestParam String subStr) {
+        return productMapper.toDto(productRepository.findAllByNameContainingIgnoreCase(subStr));
     }
 
     @GetMapping("/top-price")
-    public Product findMostExpensiveProduct() {
-        return productRepository.findTopByOrderByPriceDesc().orElseThrow();
+    public ProductDto findMostExpensiveProduct() {
+        return productMapper.toDto(productRepository.findTopByOrderByPriceDesc().orElseThrow());
     }
 }

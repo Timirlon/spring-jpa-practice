@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.springjpa.dto.CategoryCreateDto;
+import org.example.springjpa.dto.CategoryDto;
 import org.example.springjpa.mapper.impl.CategoryMapper;
 import org.example.springjpa.model.Category;
 import org.example.springjpa.repository.CategoryRepository;
@@ -19,32 +20,31 @@ import java.util.List;
 @RequestMapping("/categories")
 public class CategoryController {
     CategoryRepository categoryRepository;
-    OptionRepository optionRepository;
     CategoryMapper categoryMapper;
 
     @GetMapping
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    public List<CategoryDto> findAll() {
+        return categoryMapper.toDto(categoryRepository.findAll());
     }
 
     @GetMapping("/{id}")
-    public Category findById(@PathVariable int id) {
-        return categoryRepository.findById(id).orElseThrow();
+    public CategoryDto findById(@PathVariable int id) {
+        return categoryMapper.toDto(categoryRepository.findById(id).orElseThrow());
     }
 
     @PostMapping
-    public Category create(@RequestBody CategoryCreateDto categoryCreateDto) {
+    public CategoryDto create(@RequestBody CategoryCreateDto categoryCreateDto) {
         Category category = categoryMapper.fromDto(categoryCreateDto);
 
-        return categoryRepository.save(category);
+        return categoryMapper.toDto(categoryRepository.save(category));
     }
 
     @PutMapping("/{id}")
-    public Category update(@PathVariable int id, @RequestBody Category category) {
+    public CategoryDto update(@PathVariable int id, @RequestBody Category category) {
         Category existingCategory = categoryRepository.findById(id).orElseThrow();
         existingCategory.setName(category.getName());
 
-        return categoryRepository.save(existingCategory);
+        return categoryMapper.toDto(categoryRepository.save(existingCategory));
     }
 
     @DeleteMapping("/{id}")
