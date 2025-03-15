@@ -46,19 +46,22 @@ public class CategoryMapper implements Mapper<Category, CategoryDto> {
 
         category.setName(categoryCreateDto.getName());
 
-        List<Option> options = Arrays.stream(categoryCreateDto.getOptions())
-                .map(optionStr -> {
-                    Option option = new Option();
-                    option.setName(optionStr);
-                    option.setCategory(category);
+        if (categoryCreateDto.getOptions() != null) {
+            List<Option> options = Arrays.stream(categoryCreateDto.getOptions())
+                    .map(optionStr -> {
+                        Option option = new Option();
+                        option.setName(optionStr);
+                        option.setCategory(category);
 
 
-                    return option;
-                })
-                .toList();
+                        return option;
+                    })
+                    .toList();
 
 
-        category.setOptions(options);
+            category.setOptions(options);
+        }
+
 
         return category;
     }

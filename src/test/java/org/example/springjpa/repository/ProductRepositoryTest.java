@@ -1,14 +1,11 @@
-package org.example.springjpa.service;
+package org.example.springjpa.repository;
 
 import jakarta.persistence.EntityManager;
 import org.example.springjpa.model.Category;
 import org.example.springjpa.model.Option;
 import org.example.springjpa.model.Product;
 import org.example.springjpa.model.Value;
-import org.example.springjpa.repository.CategoryRepository;
-import org.example.springjpa.repository.OptionRepository;
-import org.example.springjpa.repository.ProductRepository;
-import org.example.springjpa.repository.ValueRepository;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -22,5 +23,5 @@ public class Category {
     String name;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    List<Option> options;
+    List<Option> options = new ArrayList<>();
 }

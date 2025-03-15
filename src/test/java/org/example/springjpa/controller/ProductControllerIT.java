@@ -1,7 +1,9 @@
-package org.example.springjpa.service;
+package org.example.springjpa.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.example.springjpa.dto.CategoryCreateDto;
+import org.example.springjpa.dto.CategoryDto;
 import org.example.springjpa.dto.ProductDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,16 +11,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ProductControllerTest {
+public class ProductControllerIT {
     @Autowired
     MockMvc mockMvc;
 
@@ -58,23 +61,46 @@ public class ProductControllerTest {
     @Test
     @SneakyThrows
     void createTestSuccess() {
+        //Создание категории
+        CategoryCreateDto categoryDto = new CategoryCreateDto();
+        categoryDto.setName("Категория");
+
+        String categoryJson = objectMapper.writeValueAsString(categoryDto);
+
+        String categoryAsString = mockMvc.perform(
+                post("/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(categoryJson)
+        ).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.name").value(categoryDto.getName()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+
+        CategoryDto mappedCategoryDto = objectMapper.readValue(categoryAsString, CategoryDto.class);
+        String expectedCategoryId = String.valueOf(mappedCategoryDto.getId());
+        String expectedCategoryName = mappedCategoryDto.getName();
+
+
+        // Создание товара
         ProductDto productDto = new ProductDto();
         productDto.setName("Продукт");
         productDto.setPrice(999.0);
 
-        String json = objectMapper.writeValueAsString(productDto);
-        String categoryId = "1";
+        String productJson = objectMapper.writeValueAsString(productDto);
 
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-                        .param("categoryId", categoryId)
+                        .content(productJson)
+                        .param("categoryId", expectedCategoryId)
         ).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value(productDto.getName()))
                 .andExpect(jsonPath("$.price").value(productDto.getPrice()))
-                .andExpect(jsonPath("$.category").value("Процессоры"));
+                .andExpect(jsonPath("$.category").value(expectedCategoryName));
 
     }
 
