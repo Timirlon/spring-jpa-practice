@@ -40,7 +40,8 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public Optional<ProductFullDto> findById(@PathVariable int id) {
-        Product prod = productRepository.findById(id).orElseThrow();
+        Product prod = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         prod.setValues(valueRepository.findByProductId(id));
 
         return Optional.of(productMapper.toFullDto(prod));
