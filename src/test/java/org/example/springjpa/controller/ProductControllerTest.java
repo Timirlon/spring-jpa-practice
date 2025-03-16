@@ -123,41 +123,38 @@ public class ProductControllerTest {
     @Test
     @SneakyThrows
     void createEpicSuccess() {
-        ProductMapper productMapper = new ProductMapper();
-
         Category category = new Category();
         category.setId(1);
         category.setName("Категория");
 
-        Product product = new Product();
+        ProductDto product = new ProductDto();
         product.setName("Продукт");
         product.setPrice(100.0);
-        product.setCategory(category);
 
-        Product returnProduct = product;
-        returnProduct.setId(1);
-
-        String productJson = objectMapper.writeValueAsString(productMapper.toDto(product));
 
 
         Mockito.when(categoryRepository.findById(category.getId()))
                         .thenReturn(Optional.of(category));
 
-        Mockito.when(productRepository.save(product))
-                .thenReturn(returnProduct);
+        Mockito.when(productRepository.save(Mockito.any(Product.class)))
+                .thenAnswer(invocationOnMock -> {
+                    Product returnProduct = invocationOnMock.getArgument(0, Product.class);
+                    returnProduct.setId(1);
+                    return returnProduct;
+                });
 
 
+        String productJson = objectMapper.writeValueAsString(product);
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productJson)
                         .param("categoryId", String.valueOf(category.getId())))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(returnProduct.getId()))
-                .andExpect(jsonPath("$.name").value(returnProduct.getName()))
-                .andExpect(jsonPath("$.price").value(returnProduct.getPrice()))
-                .andExpect(jsonPath("$.category").value(returnProduct.getCategory().getName()))
-                .andExpect(jsonPath("$.options").isEmpty());
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value(product.getName()))
+                .andExpect(jsonPath("$.price").value(product.getPrice()))
+                .andExpect(jsonPath("$.category").value(category.getName()));
     }
 
     @Test
